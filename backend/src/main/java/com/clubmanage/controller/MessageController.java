@@ -1,0 +1,29 @@
+package com.clubmanage.controller;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.clubmanage.common.Result;
+import com.clubmanage.entity.Message;
+import com.clubmanage.service.MessageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/messages")
+@RequiredArgsConstructor
+public class MessageController {
+
+    private final MessageService messageService;
+
+    @GetMapping
+    public Result<Page<Message>> list(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Integer isRead) {
+        return Result.ok(messageService.listMessages(page, size, isRead));
+    }
+
+    @PutMapping("/{id}/read")
+    public Result<Message> markRead(@PathVariable Long id) {
+        return Result.ok(messageService.markRead(id));
+    }
+}
