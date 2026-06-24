@@ -7,6 +7,7 @@ import com.clubmanage.dto.auth.*;
 import com.clubmanage.entity.User;
 import com.clubmanage.mapper.UserMapper;
 import com.clubmanage.security.JwtTokenProvider;
+import com.clubmanage.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
