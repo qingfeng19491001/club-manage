@@ -7,16 +7,12 @@ spring:
   application:
     name: club-manage-backend
   datasource:
-    url: jdbc:mysql://localhost:3306/club_manage?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password:
-      database: 0
+    url: jdbc:sqlite:./data/club_manage.db
+    driver-class-name: org.sqlite.JDBC
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
