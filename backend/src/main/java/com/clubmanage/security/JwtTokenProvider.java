@@ -52,6 +52,12 @@ public class JwtTokenProvider {
 
     private SecretKey secretKey() {
         byte[] keyBytes = jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8);
+        // 如果密钥长度不足 32 字节（HS256 要求 256 bits），自动补 0，防止 jjwt 抛异常
+        if (keyBytes.length < 32) {
+            byte[] padded = new byte[32];
+            System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
+            keyBytes = padded;
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
