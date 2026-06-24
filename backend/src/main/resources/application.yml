@@ -19,6 +19,9 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 club:
+  # 调试：接口返回 500 时把异常详情附在 data 里，便于排查。
+  # 确认登录注册稳定后可改为 false。
+  debug-exception: true
   jwt:
     # 建议在 Railway / 环境变量中设置 JWT_SECRET 覆盖此默认值（长度 ≥ 32 字符）。
     secret: ${JWT_SECRET:club-manage-jwt-default-secret-key-min-32-chars-please-override-in-prod}

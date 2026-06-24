@@ -51,13 +51,26 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, request.getUsername()));
+        User user;
+        try {
+            user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                    .eq(User::getUsername, request.getUsername()));
+        } catch (Exception e) {
+            log.error("[login] userMapper.selectOne 异常: username={}, msg={}",
+                    request.getUsername(), e.getMessage(), e);
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
+        }
         if (user == null) {
             log.warn("[login] username not found: {}", request.getUsername());
             throw new BusinessException(ErrorCode.PASSWORD_WRONG);
         }
-        String hash = user.getPasswordHash();
+        String hash;
+        try {
+            hash = user.getPasswordHash();
+        } catch (Exception e) {
+            log.error("[login] getPasswordHash 异常: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
+        }
         if (hash == null || hash.isBlank()) {
             log.warn("[login] password_hash is null for user: {}", user.getUsername());
             throw new BusinessException(ErrorCode.PASSWORD_WRONG);
@@ -77,7 +90,12 @@ public class AuthService {
             throw new BusinessException(ErrorCode.PASSWORD_WRONG);
         }
         log.info("[login] ok id={} username={}", user.getId(), user.getUsername());
-        return buildAuthResponse(user);
+        try {
+            return buildAuthResponse(user);
+        } catch (Exception e) {
+            log.error("[login] buildAuthResponse 异常: {}", e.getMessage(), e);
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
+        }
     }
 
     public void logout() {
