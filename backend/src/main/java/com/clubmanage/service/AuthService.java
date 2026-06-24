@@ -1,5 +1,7 @@
 package com.clubmanage.service;
 
+import com.clubmanage.common.TimeUtil;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.clubmanage.common.BusinessException;
 import com.clubmanage.common.ErrorCode;
@@ -14,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +43,8 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setRole(0);
         user.setStatus(1);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setCreatedAt(TimeUtil.now());
+        user.setUpdatedAt(TimeUtil.now());
         userMapper.insert(user);
         log.info("[register] ok id={} username={}", user.getId(), user.getUsername());
         return buildAuthResponse(user);
@@ -56,7 +56,7 @@ public class AuthService {
             user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                     .eq(User::getUsername, request.getUsername()));
         } catch (Exception e) {
-            log.error("[login] userMapper.selectOne 异常: username={}, msg={}",
+            log.error("[login] userMapper.selectOne 寮傚父: username={}, msg={}",
                     request.getUsername(), e.getMessage(), e);
             throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         }
@@ -68,7 +68,7 @@ public class AuthService {
         try {
             hash = user.getPasswordHash();
         } catch (Exception e) {
-            log.error("[login] getPasswordHash 异常: {}", e.getMessage(), e);
+            log.error("[login] getPasswordHash 寮傚父: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         }
         if (hash == null || hash.isBlank()) {
@@ -93,7 +93,7 @@ public class AuthService {
         try {
             return buildAuthResponse(user);
         } catch (Exception e) {
-            log.error("[login] buildAuthResponse 异常: {}", e.getMessage(), e);
+            log.error("[login] buildAuthResponse 寮傚父: {}", e.getMessage(), e);
             throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         }
     }
@@ -125,7 +125,7 @@ public class AuthService {
         if (request.getAvatarUrl() != null) {
             user.setAvatarUrl(request.getAvatarUrl());
         }
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(TimeUtil.now());
         userMapper.updateById(user);
         return UserProfileVO.from(user);
     }
@@ -137,7 +137,7 @@ public class AuthService {
             throw new BusinessException(ErrorCode.PASSWORD_WRONG);
         }
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(TimeUtil.now());
         userMapper.updateById(user);
     }
 

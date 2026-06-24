@@ -1,5 +1,7 @@
 package com.clubmanage.service;
 
+import com.clubmanage.common.TimeUtil;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clubmanage.common.BusinessException;
@@ -12,8 +14,6 @@ import com.clubmanage.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class FundService {
     @Transactional
     public Fund createFund(CreateFundRequest request) {
         if (request.getType() == null || (request.getType() != 1 && request.getType() != 2)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "经费类型无效");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "缁忚垂绫诲瀷鏃犳晥");
         }
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireClubLeader(request.getClubId(), userId);
@@ -49,8 +49,8 @@ public class FundService {
         fund.setDescription(request.getDescription());
         fund.setStatus(0);
         fund.setApplicantId(userId);
-        fund.setCreatedAt(LocalDateTime.now());
-        fund.setUpdatedAt(LocalDateTime.now());
+        fund.setCreatedAt(TimeUtil.now());
+        fund.setUpdatedAt(TimeUtil.now());
         fundMapper.insert(fund);
         return fund;
     }
@@ -63,7 +63,7 @@ public class FundService {
         }
         clubMemberGuard.requireClubLeader(fund.getClubId(), SecurityUtils.currentUserId());
         if (fund.getStatus() == null || fund.getStatus() != 0) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "经费已审批");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "缁忚垂宸插鎵?);
         }
         Long approverId = SecurityUtils.currentUserId();
         if (Boolean.TRUE.equals(request.getApproved())) {
@@ -74,7 +74,7 @@ public class FundService {
             fund.setRejectReason(request.getRejectReason());
         }
         fund.setApproverId(approverId);
-        fund.setUpdatedAt(LocalDateTime.now());
+        fund.setUpdatedAt(TimeUtil.now());
         fundMapper.updateById(fund);
         return fund;
     }

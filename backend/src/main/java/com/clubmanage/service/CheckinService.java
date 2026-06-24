@@ -18,9 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import com.clubmanage.common.TimeUtil;
 import java.util.Map;
 
 @Service
@@ -48,7 +48,7 @@ public class CheckinService {
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireClubLeader(request.getClubId(), userId);
         if (request.getEndTime().isBefore(request.getStartTime())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "结束时间不能早于开始时间");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "缂佹挻娼弮鍫曟？娑撳秷鍏橀弮鈺€绨鈧慨瀣闂?);
         }
         CheckinTask task = new CheckinTask();
         task.setClubId(request.getClubId());
@@ -61,8 +61,8 @@ public class CheckinService {
         task.setStartTime(request.getStartTime());
         task.setEndTime(request.getEndTime());
         task.setCreatedBy(userId);
-        task.setCreatedAt(LocalDateTime.now());
-        task.setUpdatedAt(LocalDateTime.now());
+        task.setCreatedAt(TimeUtil.now());
+        task.setUpdatedAt(TimeUtil.now());
         checkinTaskMapper.insert(task);
         return task;
     }
@@ -82,9 +82,9 @@ public class CheckinService {
                 && (existing.getStatus() == 1 || existing.getStatus() == 3)) {
             throw new BusinessException(ErrorCode.ALREADY_CHECKED_IN);
         }
-        LocalDateTime now = LocalDateTime.now();
+        String now = TimeUtil.now();
         if (now.isBefore(task.getStartTime()) || now.isAfter(task.getEndTime())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "不在打卡时间范围内");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀幍鎾冲幢閺冨爼妫块懠鍐ㄦ纯閸?);
         }
         int radius = task.getRadiusMeters() != null ? task.getRadiusMeters() : defaultRadiusMeters;
         double dist = GeoUtils.distanceMeters(
@@ -120,9 +120,9 @@ public class CheckinService {
         }
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireActiveMember(task.getClubId(), userId);
-        LocalDateTime now = LocalDateTime.now();
+        String now = TimeUtil.now();
         if (now.isBefore(task.getStartTime()) || now.isAfter(task.getEndTime())) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "不在打卡时间范围内");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀幍鎾冲幢閺冨爼妫块懠鍐ㄦ纯閸?);
         }
         CheckinRecord record = checkinRecordMapper.selectOne(new LambdaQueryWrapper<CheckinRecord>()
                 .eq(CheckinRecord::getTaskId, request.getTaskId())
@@ -162,7 +162,7 @@ public class CheckinService {
         } else if (clubId != null) {
             clubMemberGuard.requireClubLeader(clubId, userId);
         } else {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "请指定 clubId 或 taskId");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "鐠囬攱瀵氱€?clubId 閹?taskId");
         }
         LambdaQueryWrapper<CheckinRecord> q = new LambdaQueryWrapper<>();
         if (taskId != null) {

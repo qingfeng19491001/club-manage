@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
     avatar_url VARCHAR(512),
     role INTEGER NOT NULL DEFAULT 0,
     status INTEGER NOT NULL DEFAULT 1,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 
@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS clubs (
     status INTEGER NOT NULL DEFAULT 0,
     reject_reason VARCHAR(512),
     member_count INTEGER NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_clubs_status ON clubs (status);
@@ -41,9 +41,9 @@ CREATE TABLE IF NOT EXISTS members (
     status INTEGER NOT NULL DEFAULT 0,
     apply_reason VARCHAR(512),
     reject_reason VARCHAR(512),
-    joined_at DATETIME,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    joined_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0,
     UNIQUE (club_id, user_id)
 );
@@ -58,16 +58,16 @@ CREATE TABLE IF NOT EXISTS activities (
     location VARCHAR(256),
     latitude DECIMAL(10, 7),
     longitude DECIMAL(10, 7),
-    start_time DATETIME NOT NULL,
-    end_time DATETIME NOT NULL,
+    start_time TEXT NOT NULL,
+    end_time TEXT NOT NULL,
     max_participants INTEGER NOT NULL DEFAULT 0,
     registered_count INTEGER NOT NULL DEFAULT 0,
     status INTEGER NOT NULL DEFAULT 1,
     cover_url VARCHAR(512),
     recap TEXT,
     created_by BIGINT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_activities_club ON activities (club_id);
@@ -78,9 +78,9 @@ CREATE TABLE IF NOT EXISTS registrations (
     activity_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     status INTEGER NOT NULL DEFAULT 1,
-    checked_in_at DATETIME,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    checked_in_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0,
     UNIQUE (activity_id, user_id)
 );
@@ -95,11 +95,11 @@ CREATE TABLE IF NOT EXISTS checkin_tasks (
     latitude DECIMAL(10, 7) NOT NULL,
     longitude DECIMAL(10, 7) NOT NULL,
     radius_meters INTEGER NOT NULL DEFAULT 200,
-    start_time DATETIME NOT NULL,
-    end_time DATETIME NOT NULL,
+    start_time TEXT NOT NULL,
+    end_time TEXT NOT NULL,
     created_by BIGINT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_checkin_tasks_club ON checkin_tasks (club_id);
@@ -113,9 +113,9 @@ CREATE TABLE IF NOT EXISTS checkin_records (
     status INTEGER NOT NULL DEFAULT 1,
     appeal_reason VARCHAR(512),
     appeal_reply VARCHAR(512),
-    checked_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    checked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0,
     UNIQUE (task_id, user_id)
 );
@@ -132,8 +132,8 @@ CREATE TABLE IF NOT EXISTS funds (
     applicant_id BIGINT NOT NULL,
     approver_id BIGINT,
     reject_reason VARCHAR(512),
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_funds_club ON funds (club_id);
@@ -145,8 +145,8 @@ CREATE TABLE IF NOT EXISTS announcements (
     content TEXT NOT NULL,
     is_pinned INTEGER NOT NULL DEFAULT 0,
     created_by BIGINT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_announcements_club ON announcements (club_id);
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS messages (
     type INTEGER NOT NULL DEFAULT 0,
     ref_id BIGINT,
     is_read INTEGER NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_messages_user ON messages (user_id, is_read);
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS files (
     storage_path VARCHAR(512) NOT NULL,
     mime_type VARCHAR(128),
     size_bytes BIGINT,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted INTEGER NOT NULL DEFAULT 0
 );
 
@@ -180,8 +180,8 @@ CREATE TABLE IF NOT EXISTS system_configs (
     config_key VARCHAR(128) NOT NULL UNIQUE,
     config_value TEXT,
     description VARCHAR(256),
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT OR IGNORE INTO users (username, password_hash, real_name, role, status)
-VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '系统管理员', 2, 1);
+VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '绯荤粺绠＄悊鍛?, 2, 1);

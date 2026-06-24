@@ -1,5 +1,7 @@
 package com.clubmanage.service;
 
+import com.clubmanage.common.TimeUtil;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clubmanage.common.BusinessException;
@@ -11,8 +13,6 @@ import com.clubmanage.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +48,8 @@ public class AnnouncementService {
         a.setContent(request.getContent());
         a.setIsPinned(Boolean.TRUE.equals(request.getPinned()) ? 1 : 0);
         a.setCreatedBy(userId);
-        a.setCreatedAt(LocalDateTime.now());
-        a.setUpdatedAt(LocalDateTime.now());
+        a.setCreatedAt(TimeUtil.now());
+        a.setUpdatedAt(TimeUtil.now());
         announcementMapper.insert(a);
         return a;
     }

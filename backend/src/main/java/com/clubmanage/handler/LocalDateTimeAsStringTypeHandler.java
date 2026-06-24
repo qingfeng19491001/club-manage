@@ -7,20 +7,16 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * 把数据库中的 DATETIME / TIMESTAMP 列**以字符串方式**读取并解析为 LocalDateTime。
- *
- * 解决 SQLite JDBC 驱动（尤其是老版本在某些情况下调用 rs.getTimestamp() 会抛出
- * "Error parsing time stamp"。而普通字符串方式读取并解析可以完全避免这个问题。
- *
- * 写入时仍然按标准格式 yyyy-MM-dd HH:mm:ss 或数据库驱动提供日期时间。
- */
+ * 鎶婃暟鎹簱涓殑 DATETIME / TIMESTAMP 鍒?*浠ュ瓧绗︿覆鏂瑰紡**璇诲彇骞惰В鏋愪负 LocalDateTime銆? *
+ * 瑙ｅ喅 SQLite JDBC 椹卞姩锛堝挨鍏舵槸鑰佺増鏈湪鏌愪簺鎯呭喌涓嬭皟鐢?rs.getTimestamp() 浼氭姏鍑? * "Error parsing time stamp"銆傝€屾櫘閫氬瓧绗︿覆鏂瑰紡璇诲彇骞惰В鏋愬彲浠ュ畬鍏ㄩ伩鍏嶈繖涓棶棰樸€? *
+ * 鍐欏叆鏃朵粛鐒舵寜鏍囧噯鏍煎紡 yyyy-MM-dd HH:mm:ss 鎴栨暟鎹簱椹卞姩鎻愪緵鏃ユ湡鏃堕棿銆? */
 public class LocalDateTimeAsStringTypeHandler extends BaseTypeHandler<LocalDateTime> {
 
     private static final DateTimeFormatter OUT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
@@ -73,7 +69,7 @@ public class LocalDateTimeAsStringTypeHandler extends BaseTypeHandler<LocalDateT
                 // try next
             }
         }
-        // 最后一次用 ISO_LOCAL_DATE_TIME;
+        // 鏈€鍚庝竴娆＄敤 ISO_LOCAL_DATE_TIME;
         try {
             return LocalDateTime.parse(s);
         } catch (Exception e) {

@@ -1,5 +1,7 @@
 package com.clubmanage.service;
 
+import com.clubmanage.common.TimeUtil;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clubmanage.common.BusinessException;
@@ -18,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,8 +82,8 @@ public class ClubService {
         club.setFounderId(userId);
         club.setStatus(0);
         club.setMemberCount(0);
-        club.setCreatedAt(LocalDateTime.now());
-        club.setUpdatedAt(LocalDateTime.now());
+        club.setCreatedAt(TimeUtil.now());
+        club.setUpdatedAt(TimeUtil.now());
         clubMapper.insert(club);
         return club;
     }
@@ -92,12 +93,12 @@ public class ClubService {
         clubMemberGuard.requireAdmin();
         Club club = getClub(clubId);
         if (club.getStatus() != 0) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "社团已审核");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "绀惧洟宸插鏍?);
         }
         if (Boolean.TRUE.equals(request.getApproved())) {
             club.setStatus(1);
             club.setRejectReason(null);
-            club.setUpdatedAt(LocalDateTime.now());
+            club.setUpdatedAt(TimeUtil.now());
             clubMapper.updateById(club);
 
             Member leader = new Member();
@@ -105,9 +106,9 @@ public class ClubService {
             leader.setUserId(club.getFounderId());
             leader.setRole(2);
             leader.setStatus(1);
-            leader.setJoinedAt(LocalDateTime.now());
-            leader.setCreatedAt(LocalDateTime.now());
-            leader.setUpdatedAt(LocalDateTime.now());
+            leader.setJoinedAt(TimeUtil.now());
+            leader.setCreatedAt(TimeUtil.now());
+            leader.setUpdatedAt(TimeUtil.now());
             memberMapper.insert(leader);
 
             club.setMemberCount(1);
@@ -116,17 +117,17 @@ public class ClubService {
             User founder = userMapper.selectById(club.getFounderId());
             if (founder != null && (founder.getRole() == null || founder.getRole() < 1)) {
                 founder.setRole(1);
-                founder.setUpdatedAt(LocalDateTime.now());
+                founder.setUpdatedAt(TimeUtil.now());
                 userMapper.updateById(founder);
             }
-            notifyUser(club.getFounderId(), "社团审核通过", "您的社团「" + club.getName() + "」已通过审核。", 1, clubId);
+            notifyUser(club.getFounderId(), "绀惧洟瀹℃牳閫氳繃", "鎮ㄧ殑绀惧洟銆? + club.getName() + "銆嶅凡閫氳繃瀹℃牳銆?, 1, clubId);
         } else {
             club.setStatus(2);
             club.setRejectReason(request.getRejectReason());
-            club.setUpdatedAt(LocalDateTime.now());
+            club.setUpdatedAt(TimeUtil.now());
             clubMapper.updateById(club);
-            notifyUser(club.getFounderId(), "社团审核未通过", "您的社团「" + club.getName() + "」未通过审核。"
-                    + (request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : ""), 1, clubId);
+            notifyUser(club.getFounderId(), "绀惧洟瀹℃牳鏈€氳繃", "鎮ㄧ殑绀惧洟銆? + club.getName() + "銆嶆湭閫氳繃瀹℃牳銆?
+                    + (request.getRejectReason() != null ? " 鍘熷洜锛? + request.getRejectReason() : ""), 1, clubId);
         }
         return clubMapper.selectById(clubId);
     }
@@ -135,7 +136,7 @@ public class ClubService {
     public Member joinClub(Long clubId, JoinClubRequest request) {
         Club club = getClub(clubId);
         if (club.getStatus() != 1) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "社团未成立");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "绀惧洟鏈垚绔?);
         }
         Long userId = SecurityUtils.currentUserId();
         Member existing = memberMapper.selectOne(new LambdaQueryWrapper<Member>()
@@ -146,12 +147,12 @@ public class ClubService {
                 throw new BusinessException(ErrorCode.ALREADY_JOINED_CLUB);
             }
             if (existing.getStatus() == 0) {
-                throw new BusinessException(ErrorCode.BAD_REQUEST, "入社申请审核中");
+                throw new BusinessException(ErrorCode.BAD_REQUEST, "鍏ョぞ鐢宠瀹℃牳涓?);
             }
             existing.setStatus(0);
             existing.setApplyReason(request.getApplyReason());
             existing.setRejectReason(null);
-            existing.setUpdatedAt(LocalDateTime.now());
+            existing.setUpdatedAt(TimeUtil.now());
             memberMapper.updateById(existing);
             return existing;
         }
@@ -161,8 +162,8 @@ public class ClubService {
         member.setRole(0);
         member.setStatus(0);
         member.setApplyReason(request.getApplyReason());
-        member.setCreatedAt(LocalDateTime.now());
-        member.setUpdatedAt(LocalDateTime.now());
+        member.setCreatedAt(TimeUtil.now());
+        member.setUpdatedAt(TimeUtil.now());
         memberMapper.insert(member);
         return member;
     }
@@ -203,23 +204,23 @@ public class ClubService {
             throw new BusinessException(ErrorCode.NOT_FOUND);
         }
         if (member.getStatus() != 0) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "申请已处理");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "鐢宠宸插鐞?);
         }
         Club club = getClub(clubId);
         if (Boolean.TRUE.equals(request.getApproved())) {
             member.setStatus(1);
-            member.setJoinedAt(LocalDateTime.now());
+            member.setJoinedAt(TimeUtil.now());
             member.setRejectReason(null);
             club.setMemberCount(club.getMemberCount() + 1);
             clubMapper.updateById(club);
-            notifyUser(member.getUserId(), "入社申请通过", "您已成功加入社团「" + club.getName() + "」。", 1, clubId);
+            notifyUser(member.getUserId(), "鍏ョぞ鐢宠閫氳繃", "鎮ㄥ凡鎴愬姛鍔犲叆绀惧洟銆? + club.getName() + "銆嶃€?, 1, clubId);
         } else {
             member.setStatus(2);
             member.setRejectReason(request.getRejectReason());
-            notifyUser(member.getUserId(), "入社申请未通过", "您的入社申请未通过。"
-                    + (request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : ""), 1, clubId);
+            notifyUser(member.getUserId(), "鍏ョぞ鐢宠鏈€氳繃", "鎮ㄧ殑鍏ョぞ鐢宠鏈€氳繃銆?
+                    + (request.getRejectReason() != null ? " 鍘熷洜锛? + request.getRejectReason() : ""), 1, clubId);
         }
-        member.setUpdatedAt(LocalDateTime.now());
+        member.setUpdatedAt(TimeUtil.now());
         memberMapper.updateById(member);
         return member;
     }
@@ -232,7 +233,7 @@ public class ClubService {
         msg.setType(type);
         msg.setRefId(refId);
         msg.setIsRead(0);
-        msg.setCreatedAt(LocalDateTime.now());
+        msg.setCreatedAt(TimeUtil.now());
         messageMapper.insert(msg);
     }
 }

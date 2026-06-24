@@ -6,15 +6,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 public class CreateActivityRequest {
 
-    @NotNull(message = "社团ID不能为空")
+    @NotNull(message = "缁€鎯ф礋ID娑撳秷鍏樻稉铏光敄")
     private Long clubId;
 
-    @NotBlank(message = "活动标题不能为空")
+    @NotBlank(message = "濞茶濮╅弽鍥暯娑撳秷鍏樻稉铏光敄")
     @Size(max = 256)
     private String title;
 
@@ -23,11 +22,11 @@ public class CreateActivityRequest {
     private BigDecimal latitude;
     private BigDecimal longitude;
 
-    @NotNull(message = "开始时间不能为空")
-    private LocalDateTime startTime;
+    @NotNull(message = "瀵偓婵妞傞梻缈犵瑝閼虫垝璐熺粚?)
+    private String startTime;
 
-    @NotNull(message = "结束时间不能为空")
-    private LocalDateTime endTime;
+    @NotNull(message = "缂佹挻娼弮鍫曟？娑撳秷鍏樻稉铏光敄")
+    private String endTime;
 
     /** 0 = unlimited */
     private Integer maxParticipants = 0;
