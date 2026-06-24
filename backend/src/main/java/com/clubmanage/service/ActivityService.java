@@ -52,7 +52,7 @@ public class ActivityService {
     public Activity createActivity(CreateActivityRequest request) {
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireClubLeader(request.getClubId(), userId);
-        if (request.getEndTime().isBefore(request.getStartTime())) {
+        if (TimeUtil.parse(request.getEndTime()).isBefore(TimeUtil.parse(request.getStartTime()))) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "缂佹挻娼弮鍫曟？娑撳秷鍏橀弮鈺€绨鈧慨瀣闂?);
         }
         Activity activity = new Activity();
@@ -133,7 +133,7 @@ public class ActivityService {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "閹躲儱鎮曞鎻掑絿濞?);
         }
         String now = TimeUtil.now();
-        if (now.isBefore(activity.getStartTime()) || now.isAfter(activity.getEndTime())) {
+        if (TimeUtil.parse(now).isBefore(TimeUtil.parse(activity.getStartTime())) || TimeUtil.parse(now).isAfter(TimeUtil.parse(activity.getEndTime()))) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀ú璇插З缁涙儳鍩岄弮鍫曟？閼煎啫娲块崘?);
         }
         if (activity.getLatitude() != null && activity.getLongitude() != null) {

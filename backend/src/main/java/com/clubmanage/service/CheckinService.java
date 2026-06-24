@@ -47,7 +47,7 @@ public class CheckinService {
     public CheckinTask createTask(CreateCheckinTaskRequest request) {
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireClubLeader(request.getClubId(), userId);
-        if (request.getEndTime().isBefore(request.getStartTime())) {
+        if (TimeUtil.parse(request.getEndTime()).isBefore(TimeUtil.parse(request.getStartTime()))) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "缂佹挻娼弮鍫曟？娑撳秷鍏橀弮鈺€绨鈧慨瀣闂?);
         }
         CheckinTask task = new CheckinTask();
@@ -83,7 +83,7 @@ public class CheckinService {
             throw new BusinessException(ErrorCode.ALREADY_CHECKED_IN);
         }
         String now = TimeUtil.now();
-        if (now.isBefore(task.getStartTime()) || now.isAfter(task.getEndTime())) {
+        if (TimeUtil.parse(now).isBefore(TimeUtil.parse(task.getStartTime())) || TimeUtil.parse(now).isAfter(TimeUtil.parse(task.getEndTime()))) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀幍鎾冲幢閺冨爼妫块懠鍐ㄦ纯閸?);
         }
         int radius = task.getRadiusMeters() != null ? task.getRadiusMeters() : defaultRadiusMeters;
@@ -121,7 +121,7 @@ public class CheckinService {
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireActiveMember(task.getClubId(), userId);
         String now = TimeUtil.now();
-        if (now.isBefore(task.getStartTime()) || now.isAfter(task.getEndTime())) {
+        if (TimeUtil.parse(now).isBefore(TimeUtil.parse(task.getStartTime())) || TimeUtil.parse(now).isAfter(TimeUtil.parse(task.getEndTime()))) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀幍鎾冲幢閺冨爼妫块懠鍐ㄦ纯閸?);
         }
         CheckinRecord record = checkinRecordMapper.selectOne(new LambdaQueryWrapper<CheckinRecord>()
