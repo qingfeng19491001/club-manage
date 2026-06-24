@@ -7,10 +7,23 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    /** 版本信息 — 便于在 Railway / 浏览器上直接确认部署是否到位 */
+    @GetMapping("/version")
+    public Result<Map<String, Object>> version() {
+        return Result.ok(Map.of(
+                "name", "club-manage-backend",
+                "build", "2026.06.24-fix-login",
+                "login_impl", "manual-match (no AuthenticationManager)",
+                "password_encoder", "BCryptPasswordEncoder"
+        ));
+    }
 
     private final AuthService authService;
 
