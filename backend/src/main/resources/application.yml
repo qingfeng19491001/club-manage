@@ -3,6 +3,18 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   application:
     name: club-manage-backend
+  datasource:
+    # 默认为 SQLite。dev profile 会覆盖为带日期参数的 URL；prod 覆盖为 MySQL。
+    # 这里的默认值确保 Railway 即使没设 SPRING_PROFILES_ACTIVE 也能正常启动。
+    url: jdbc:sqlite:./data/club_manage.db?date_class=TEXT&date_string_format=yyyy-MM-dd HH:mm:ss
+    driver-class-name: org.sqlite.JDBC
+  sql:
+    init:
+      mode: ${DB_INIT_MODE:always}
+      schema-locations: classpath:db/schema.sql
+      # SQLite 下 DATETIME DEFAULT CURRENT_TIMESTAMP 有时会触发 "SQL error or missing database"，
+      # 加 continue-on-error 避免初始化脚本因偶发问题失败
+      continue-on-error: true
 
 server:
   port: 8080

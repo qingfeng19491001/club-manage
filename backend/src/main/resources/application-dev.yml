@@ -1,6 +1,8 @@
 spring:
   datasource:
-    url: jdbc:sqlite:./data/club_manage.db
+    # date_class=TEXT + date_string_format：让 SQLite 把 DATETIME 列以字符串交付给 MyBatis-Plus，
+    # 避免默认的 rs.getTimestamp 解析失败（"Error parsing time stamp"）。
+    url: jdbc:sqlite:./data/club_manage.db?date_class=TEXT&date_string_format=yyyy-MM-dd HH:mm:ss
     driver-class-name: org.sqlite.JDBC
   sql:
     init:
