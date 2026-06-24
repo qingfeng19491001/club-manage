@@ -11,7 +11,9 @@ spring:
       connection-timeout: 20000
   sql:
     init:
-      mode: never
+      mode: ${DB_INIT_MODE:never}
+      schema-locations: classpath:db/schema-mysql.sql
+      continue-on-error: true
 
 mybatis-plus:
   configuration:

@@ -12,6 +12,7 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 club:
+  db-type: sqlite
   jwt:
     secret: ${JWT_SECRET:club-manage-jwt-secret-key-min-256-bits-for-hs256-algorithm-dev}
 

@@ -1,31 +1,28 @@
-# 后端 Dockerfile
-FROM eclipse-temurin:17-jdk-alpine AS builder
+# 后端 Dockerfile —— 使用官方 Maven 镜像进行构建（避免 ./mvnw 缺失 / mvn 未安装问题）
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# 复制 pom.xml 和源代码
+# 只复制 pom.xml 先，便于 Docker 缓存依赖层
 COPY pom.xml .
+RUN mvn -B -e -q dependency:go-offline
+
+# 再复制源码并打包
 COPY src ./src
+RUN mvn -B -e -q package -DskipTests
 
-# 下载依赖 (利用 Docker 缓存)
-RUN ./mvnw dependency:go-offline -B || mvn dependency:go-offline -B
-
-# 构建
-RUN ./mvnw package -DskipTests -B || mvn package -DskipTests -B
-
-# 运行镜像
+# 运行镜像（保持精简）
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# 创建数据目录
 RUN mkdir -p /app/data
 
-# 复制 jar
 COPY --from=builder /app/target/*.jar app.jar
 
-# 暴露端口
 EXPOSE 8080
 
-# 启动
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
+# 默认启用 prod profile，可通过环境变量覆盖
+ENV SPRING_PROFILES_ACTIVE=prod
+
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}", "app.jar"]
