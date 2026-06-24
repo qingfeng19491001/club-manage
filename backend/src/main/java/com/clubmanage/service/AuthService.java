@@ -7,14 +7,9 @@ import com.clubmanage.dto.auth.*;
 import com.clubmanage.entity.User;
 import com.clubmanage.mapper.UserMapper;
 import com.clubmanage.security.JwtTokenProvider;
-import com.clubmanage.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +25,6 @@ public class AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -41,9 +35,7 @@ public class AuthService {
         }
         User user = new User();
         user.setUsername(request.getUsername());
-        String rawPwd = request.getPassword();
-        String encoded = passwordEncoder.encode(rawPwd);
-        user.setPasswordHash(encoded);
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setRealName(request.getRealName());
         user.setStudentNo(request.getStudentNo());
         user.setPhone(request.getPhone());
@@ -53,48 +45,37 @@ public class AuthService {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.insert(user);
-        log.info("[register] username={} userId={} password_hash_len={}",
-                user.getUsername(), user.getId(), encoded.length());
+        log.info("[register] ok id={} username={}", user.getId(), user.getUsername());
         return buildAuthResponse(user);
     }
 
     public AuthResponse login(LoginRequest request) {
-        log.info("[login] 尝试登录 username={}", request.getUsername());
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, request.getUsername()));
         if (user == null) {
-            log.warn("[login] username={} 不存在", request.getUsername());
+            log.warn("[login] username not found: {}", request.getUsername());
             throw new BusinessException(ErrorCode.PASSWORD_WRONG);
         }
-        log.info("[login] 找到用户 id={} password_hash_prefix={}",
-                user.getId(),
-                user.getPasswordHash() == null ? "(null)" : user.getPasswordHash().substring(0, Math.min(8, user.getPasswordHash().length())));
-
-        // 先手动比对密码，避免 AuthenticationManager 内部吞掉异常堆栈
+        String hash = user.getPasswordHash();
+        if (hash == null || hash.isBlank()) {
+            log.warn("[login] password_hash is null for user: {}", user.getUsername());
+            throw new BusinessException(ErrorCode.PASSWORD_WRONG);
+        }
         boolean matched;
         try {
-            matched = passwordEncoder.matches(request.getPassword(), user.getPasswordHash());
+            matched = passwordEncoder.matches(request.getPassword(), hash);
         } catch (Exception e) {
-            log.error("[login] passwordEncoder.matches 抛出异常: {}", e.getMessage(), e);
+            log.error("[login] passwordEncoder.matches failed for user={}, hashPrefix={}",
+                    user.getUsername(),
+                    hash.length() > 7 ? hash.substring(0, 7) : hash,
+                    e);
             throw new BusinessException(ErrorCode.PASSWORD_WRONG);
         }
         if (!matched) {
-            log.warn("[login] 密码错误 username={}", request.getUsername());
+            log.warn("[login] password mismatch for user: {}", user.getUsername());
             throw new BusinessException(ErrorCode.PASSWORD_WRONG);
         }
-
-        // 然后再走 Spring Security 认证（为了通过 JWT 与授权上下文一致）
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-            log.info("[login] 认证成功 principal={}", authentication.getPrincipal());
-        } catch (BadCredentialsException bc) {
-            log.warn("[login] BadCredentialsException: {}", bc.getMessage());
-            throw new BusinessException(ErrorCode.PASSWORD_WRONG);
-        } catch (Exception e) {
-            log.error("[login] authenticationManager.authenticate 未捕获异常: {}", e.getMessage(), e);
-            throw new BusinessException(ErrorCode.PASSWORD_WRONG);
-        }
+        log.info("[login] ok id={} username={}", user.getId(), user.getUsername());
         return buildAuthResponse(user);
     }
 
