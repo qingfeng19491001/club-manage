@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:./data/club_manage.db
+    driver-class-name: org.sqlite.JDBC
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+club:
+  jwt:
+    secret: ${JWT_SECRET:club-manage-jwt-secret-key-min-256-bits-for-hs256-algorithm-dev}
+
+logging:
+  level:
+    com.clubmanage: debug
