@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.clubmanage.handler.LocalDateTimeAsStringTypeHandler;
+import org.apache.ibatis.type.JdbcType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,7 +27,9 @@ public class Fund {
     private Long applicantId;
     private Long approverId;
     private String rejectReason;
+    @TableField(jdbcType = JdbcType.VARCHAR, typeHandler = LocalDateTimeAsStringTypeHandler.class)
     private LocalDateTime createdAt;
+    @TableField(jdbcType = JdbcType.VARCHAR, typeHandler = LocalDateTimeAsStringTypeHandler.class)
     private LocalDateTime updatedAt;
     @TableLogic
     private Integer deleted;

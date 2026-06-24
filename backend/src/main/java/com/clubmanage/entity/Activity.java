@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.clubmanage.handler.LocalDateTimeAsStringTypeHandler;
+import org.apache.ibatis.type.JdbcType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +24,9 @@ public class Activity {
     private String location;
     private BigDecimal latitude;
     private BigDecimal longitude;
+    @TableField(jdbcType = JdbcType.VARCHAR, typeHandler = LocalDateTimeAsStringTypeHandler.class)
     private LocalDateTime startTime;
+    @TableField(jdbcType = JdbcType.VARCHAR, typeHandler = LocalDateTimeAsStringTypeHandler.class)
     private LocalDateTime endTime;
     private Integer maxParticipants;
     private Integer registeredCount;
@@ -29,7 +34,9 @@ public class Activity {
     private String coverUrl;
     private String recap;
     private Long createdBy;
+    @TableField(jdbcType = JdbcType.VARCHAR, typeHandler = LocalDateTimeAsStringTypeHandler.class)
     private LocalDateTime createdAt;
+    @TableField(jdbcType = JdbcType.VARCHAR, typeHandler = LocalDateTimeAsStringTypeHandler.class)
     private LocalDateTime updatedAt;
     @TableLogic
     private Integer deleted;
