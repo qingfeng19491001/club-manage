@@ -29,17 +29,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request);
-        if (StringUtils.hasText(token) && jwtTokenProvider.validate(token)) {
-            Long userId = jwtTokenProvider.getUserId(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(
-                    jwtTokenProvider.parseClaims(token).get("username", String.class));
-            if (userDetails instanceof LoginUser && ((LoginUser) userDetails).getUserId().equals(userId)) {
-                var auth = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+        try {
+            String token = resolveToken(request);
+            if (StringUtils.hasText(token) && jwtTokenProvider.validate(token)) {
+                Long userId = jwtTokenProvider.getUserId(token);
+                String username = jwtTokenProvider.parseClaims(token).get("username", String.class);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (userDetails instanceof LoginUser && ((LoginUser) userDetails).getUserId().equals(userId)) {
+                    var auth = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
+        } catch (RuntimeException e) {
+            // 解析失败 / 用户已不存在 / 数据库异常 / 密钥长度不足 等，都直接当作"匿名请求"继续执行，
+            // 而不是让异常冒泡到 entryPoint 把 permitAll 的接口也搞成 401。
+            SecurityContextHolder.clearContext();
         }
         filterChain.doFilter(request, response);
     }
