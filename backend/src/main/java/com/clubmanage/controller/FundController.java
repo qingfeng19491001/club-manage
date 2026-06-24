@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/funds")
+@RequestMapping("/api/funds")
 @RequiredArgsConstructor
 public class FundController {
 

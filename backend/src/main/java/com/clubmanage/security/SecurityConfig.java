@@ -43,10 +43,10 @@ public class SecurityConfig {
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/clubs", "/clubs/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/activities", "/activities/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/announcements", "/announcements/**").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/clubs", "/api/clubs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/activities", "/api/activities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/announcements", "/api/announcements/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> writeJson(res, HttpServletResponse.SC_UNAUTHORIZED,
