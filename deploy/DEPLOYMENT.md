@@ -61,8 +61,6 @@ mv application.yml application.yml.bak
 cat > application.yml << 'EOF'
 server:
   port: 8080
-  servlet:
-    context-path: /api
 
 spring:
   application:

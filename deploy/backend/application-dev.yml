@@ -1,8 +1,6 @@
 # 开发环境配置 (SQLite)
 server:
   port: 8080
-  servlet:
-    context-path: /api
 
 spring:
   application:

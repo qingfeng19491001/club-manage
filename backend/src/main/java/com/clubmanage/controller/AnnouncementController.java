@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/announcements")
+@RequestMapping("/api/announcements")
 @RequiredArgsConstructor
 public class AnnouncementController {
 

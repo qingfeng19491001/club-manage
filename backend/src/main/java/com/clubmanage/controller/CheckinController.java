@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/checkin")
+@RequestMapping("/api/checkin")
 @RequiredArgsConstructor
 public class CheckinController {
 

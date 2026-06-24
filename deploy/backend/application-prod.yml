@@ -1,8 +1,6 @@
 # 生产环境配置 (MySQL)
 server:
   port: 8080
-  servlet:
-    context-path: /api
 
 spring:
   application:
