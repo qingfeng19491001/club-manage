@@ -12,10 +12,10 @@ public final class SecurityUtils {
 
     public static LoginUser currentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof LoginUser loginUser)) {
+        if (auth == null || !(auth.getPrincipal() instanceof LoginUser)) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
-        return loginUser;
+        return (LoginUser) auth.getPrincipal();
     }
 
     public static Long currentUserId() {

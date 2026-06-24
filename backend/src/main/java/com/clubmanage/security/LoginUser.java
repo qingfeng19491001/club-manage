@@ -24,12 +24,20 @@ public class LoginUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = switch (user.getRole() != null ? user.getRole() : 0) {
-            case 2 -> "ROLE_ADMIN";
-            case 1 -> "ROLE_LEADER";
-            default -> "ROLE_MEMBER";
-        };
-        return List.of(new SimpleGrantedAuthority(role));
+        int role = user.getRole() != null ? user.getRole() : 0;
+        String roleStr;
+        switch (role) {
+            case 2:
+                roleStr = "ROLE_ADMIN";
+                break;
+            case 1:
+                roleStr = "ROLE_LEADER";
+                break;
+            default:
+                roleStr = "ROLE_MEMBER";
+                break;
+        }
+        return List.of(new SimpleGrantedAuthority(roleStr));
     }
 
     @Override
