@@ -21,7 +21,8 @@ mybatis-plus:
 
 club:
   jwt:
-    secret: ${JWT_SECRET:}
+    # 建议在 Railway Variables 里设置 JWT_SECRET 覆盖默认值（长度 ≥ 32 字符）。
+    secret: ${JWT_SECRET:club-manage-jwt-default-secret-key-min-32-chars-please-override}
 
 logging:
   level:
