@@ -76,14 +76,15 @@ public class ClubService {
 
     @Transactional
     public Club createClub(CreateClubRequest request) {
+        String name = request.getName().trim();
         Long count = clubMapper.selectCount(new LambdaQueryWrapper<Club>()
-                .eq(Club::getName, request.getName()));
+                .eq(Club::getName, name));
         if (count != null && count > 0) {
             throw new BusinessException(ErrorCode.CLUB_NAME_EXISTS);
         }
         Long userId = SecurityUtils.currentUserId();
         Club club = new Club();
-        club.setName(request.getName().trim());
+        club.setName(name);
         club.setDescription(request.getDescription());
         club.setLogoUrl(request.getLogoUrl());
         club.setFounderId(userId);
@@ -104,13 +105,14 @@ public class ClubService {
         }
         if (request.getName() != null && !request.getName().isBlank()
                 && !request.getName().trim().equals(club.getName())) {
+            String name = request.getName().trim();
             Long count = clubMapper.selectCount(new LambdaQueryWrapper<Club>()
-                    .eq(Club::getName, request.getName().trim())
+                    .eq(Club::getName, name)
                     .ne(Club::getId, clubId));
             if (count != null && count > 0) {
                 throw new BusinessException(ErrorCode.CLUB_NAME_EXISTS);
             }
-            club.setName(request.getName().trim());
+            club.setName(name);
         }
         if (request.getDescription() != null) {
             club.setDescription(request.getDescription());
