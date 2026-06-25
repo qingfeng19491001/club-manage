@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS clubs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(128) NOT NULL UNIQUE,
     description TEXT,
+    category VARCHAR(64) NOT NULL DEFAULT '其他',
     logo_url VARCHAR(512),
     founder_id BIGINT NOT NULL,
     status INT NOT NULL DEFAULT 0 COMMENT '0=pending 1=approved 2=rejected 3=disbanded',

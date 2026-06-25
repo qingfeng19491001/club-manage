@@ -11,6 +11,9 @@ public class UpdateClubRequest {
     @Size(max = 128)
     private String name;
 
+    @Size(max = 64)
+    private String category;
+
     private String description;
     private String logoUrl;
 }

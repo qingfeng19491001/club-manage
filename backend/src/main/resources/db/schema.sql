@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS clubs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(128) NOT NULL UNIQUE,
     description TEXT,
+    category VARCHAR(64) NOT NULL DEFAULT '其他',
     logo_url VARCHAR(512),
     founder_id BIGINT NOT NULL,
     status INTEGER NOT NULL DEFAULT 0,

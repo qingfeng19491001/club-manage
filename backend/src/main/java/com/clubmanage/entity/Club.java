@@ -14,6 +14,7 @@ public class Club {
     private Long id;
     private String name;
     private String description;
+    private String category;
     private String logoUrl;
     private Long founderId;
     /** 0 pending 1 approved 2 rejected 3 disbanded */

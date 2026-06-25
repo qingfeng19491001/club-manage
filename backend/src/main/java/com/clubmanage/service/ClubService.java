@@ -86,6 +86,7 @@ public class ClubService {
         Club club = new Club();
         club.setName(name);
         club.setDescription(request.getDescription());
+        club.setCategory(normalizeCategory(request.getCategory()));
         club.setLogoUrl(request.getLogoUrl());
         club.setFounderId(userId);
         club.setStatus(0);
@@ -116,6 +117,9 @@ public class ClubService {
         }
         if (request.getDescription() != null) {
             club.setDescription(request.getDescription());
+        }
+        if (request.getCategory() != null && !request.getCategory().isBlank()) {
+            club.setCategory(normalizeCategory(request.getCategory()));
         }
         if (request.getLogoUrl() != null) {
             club.setLogoUrl(request.getLogoUrl());
@@ -278,6 +282,10 @@ public class ClubService {
         member.setUpdatedAt(TimeUtil.now());
         memberMapper.updateById(member);
         return member;
+    }
+
+    private String normalizeCategory(String category) {
+        return category == null || category.isBlank() ? "其他" : category.trim();
     }
 
     private void notifyUser(Long userId, String title, String content, int type, Long refId) {

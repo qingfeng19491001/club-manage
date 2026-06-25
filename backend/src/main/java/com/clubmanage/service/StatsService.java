@@ -29,13 +29,25 @@ public class StatsService {
                 .eq(Member::getStatus, 1));
         Long totalActivities = activityMapper.selectCount(new LambdaQueryWrapper<Activity>());
 
-        List<Club> topClubs = clubMapper.selectList(new LambdaQueryWrapper<Club>()
-                .eq(Club::getStatus, 1)
-                .orderByDesc(Club::getMemberCount)
-                .last("LIMIT 5"));
+        List<Club> approvedClubs = clubMapper.selectList(new LambdaQueryWrapper<Club>()
+                .eq(Club::getStatus, 1));
+        List<Club> topClubs = approvedClubs.stream()
+                .sorted((a, b) -> Integer.compare(
+                        b.getMemberCount() == null ? 0 : b.getMemberCount(),
+                        a.getMemberCount() == null ? 0 : a.getMemberCount()))
+                .limit(5)
+                .toList();
 
         Map<String, Integer> clubByCategory = new LinkedHashMap<>();
-        clubByCategory.put("全部", totalClubs == null ? 0 : totalClubs.intValue());
+        for (Club club : approvedClubs) {
+            String category = club.getCategory() == null || club.getCategory().isBlank()
+                    ? "其他"
+                    : club.getCategory();
+            clubByCategory.merge(category, 1, Integer::sum);
+        }
+        if (clubByCategory.isEmpty()) {
+            clubByCategory.put("全部", totalClubs == null ? 0 : totalClubs.intValue());
+        }
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("totalClubs", totalClubs == null ? 0 : totalClubs);
