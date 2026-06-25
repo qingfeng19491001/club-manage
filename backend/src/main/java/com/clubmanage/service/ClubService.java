@@ -1,12 +1,15 @@
 package com.clubmanage.service;
 
-import com.clubmanage.common.TimeUtil;
-
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clubmanage.common.BusinessException;
 import com.clubmanage.common.ErrorCode;
-import com.clubmanage.dto.club.*;
+import com.clubmanage.common.TimeUtil;
+import com.clubmanage.dto.club.ApproveClubRequest;
+import com.clubmanage.dto.club.CreateClubRequest;
+import com.clubmanage.dto.club.JoinClubRequest;
+import com.clubmanage.dto.club.ReviewMemberRequest;
+import com.clubmanage.dto.club.UpdateClubRequest;
 import com.clubmanage.entity.Club;
 import com.clubmanage.entity.Member;
 import com.clubmanage.entity.Message;
@@ -20,7 +23,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -76,7 +83,7 @@ public class ClubService {
         }
         Long userId = SecurityUtils.currentUserId();
         Club club = new Club();
-        club.setName(request.getName());
+        club.setName(request.getName().trim());
         club.setDescription(request.getDescription());
         club.setLogoUrl(request.getLogoUrl());
         club.setFounderId(userId);
@@ -86,6 +93,43 @@ public class ClubService {
         club.setUpdatedAt(TimeUtil.now());
         clubMapper.insert(club);
         return club;
+    }
+
+    @Transactional
+    public Club updateClub(Long clubId, UpdateClubRequest request) {
+        Club club = getClub(clubId);
+        Long userId = SecurityUtils.currentUserId();
+        if (!SecurityUtils.isAdmin()) {
+            clubMemberGuard.requireClubLeader(clubId, userId);
+        }
+        if (request.getName() != null && !request.getName().isBlank()
+                && !request.getName().trim().equals(club.getName())) {
+            Long count = clubMapper.selectCount(new LambdaQueryWrapper<Club>()
+                    .eq(Club::getName, request.getName().trim())
+                    .ne(Club::getId, clubId));
+            if (count != null && count > 0) {
+                throw new BusinessException(ErrorCode.CLUB_NAME_EXISTS);
+            }
+            club.setName(request.getName().trim());
+        }
+        if (request.getDescription() != null) {
+            club.setDescription(request.getDescription());
+        }
+        if (request.getLogoUrl() != null) {
+            club.setLogoUrl(request.getLogoUrl());
+        }
+        club.setUpdatedAt(TimeUtil.now());
+        clubMapper.updateById(club);
+        return clubMapper.selectById(clubId);
+    }
+
+    @Transactional
+    public void deleteClub(Long clubId) {
+        getClub(clubId);
+        if (!SecurityUtils.isAdmin()) {
+            clubMemberGuard.requireClubLeader(clubId, SecurityUtils.currentUserId());
+        }
+        clubMapper.deleteById(clubId);
     }
 
     @Transactional
@@ -120,14 +164,16 @@ public class ClubService {
                 founder.setUpdatedAt(TimeUtil.now());
                 userMapper.updateById(founder);
             }
-            notifyUser(club.getFounderId(), "社团审核通过", "您的社团“" + club.getName() + "”已通过审核。", 1, clubId);
+            notifyUser(club.getFounderId(), "社团审核通过",
+                    "您的社团“" + club.getName() + "”已通过审核。", 3, clubId);
         } else {
             club.setStatus(2);
             club.setRejectReason(request.getRejectReason());
             club.setUpdatedAt(TimeUtil.now());
             clubMapper.updateById(club);
-            notifyUser(club.getFounderId(), "社团审核未通过", "您的社团“" + club.getName() + "”未通过审核。"
-                    + (request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : ""), 1, clubId);
+            String reason = request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : "";
+            notifyUser(club.getFounderId(), "社团审核未通过",
+                    "您的社团“" + club.getName() + "”未通过审核。" + reason, 3, clubId);
         }
         return clubMapper.selectById(clubId);
     }
@@ -184,7 +230,12 @@ public class ClubService {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Member m : members) {
             Map<String, Object> row = new LinkedHashMap<>();
-            row.put("member", m);
+            row.put("memberId", m.getId());
+            row.put("userId", m.getUserId());
+            row.put("clubId", m.getClubId());
+            row.put("roleInClub", m.getRole());
+            row.put("status", m.getStatus());
+            row.put("joinTime", m.getJoinedAt());
             User u = users.get(m.getUserId());
             if (u != null) {
                 row.put("username", u.getUsername());
@@ -213,12 +264,14 @@ public class ClubService {
             member.setRejectReason(null);
             club.setMemberCount(club.getMemberCount() + 1);
             clubMapper.updateById(club);
-            notifyUser(member.getUserId(), "入社申请通过", "您已成功加入社团“" + club.getName() + "”。", 1, clubId);
+            notifyUser(member.getUserId(), "入社申请通过",
+                    "您已成功加入社团“" + club.getName() + "”。", 3, clubId);
         } else {
             member.setStatus(2);
             member.setRejectReason(request.getRejectReason());
-            notifyUser(member.getUserId(), "入社申请未通过", "您的入社申请未通过。"
-                    + (request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : ""), 1, clubId);
+            String reason = request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : "";
+            notifyUser(member.getUserId(), "入社申请未通过",
+                    "您的入社申请未通过。" + reason, 3, clubId);
         }
         member.setUpdatedAt(TimeUtil.now());
         memberMapper.updateById(member);

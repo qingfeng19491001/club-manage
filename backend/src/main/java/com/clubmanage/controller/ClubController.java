@@ -49,6 +49,17 @@ public class ClubController {
         return Result.ok(clubService.approveClub(id, request));
     }
 
+    @PutMapping("/{id}")
+    public Result<Club> update(@PathVariable Long id, @Valid @RequestBody UpdateClubRequest request) {
+        return Result.ok(clubService.updateClub(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(@PathVariable Long id) {
+        clubService.deleteClub(id);
+        return Result.ok(null);
+    }
+
     @GetMapping("/{id}/members")
     public Result<List<Map<String, Object>>> members(
             @PathVariable Long id,

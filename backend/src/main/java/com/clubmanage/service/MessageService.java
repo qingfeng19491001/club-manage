@@ -28,6 +28,23 @@ public class MessageService {
         return messageMapper.selectPage(new Page<>(page, size), q);
     }
 
+    public Long unreadCount() {
+        Long userId = SecurityUtils.currentUserId();
+        return messageMapper.selectCount(new LambdaQueryWrapper<Message>()
+                .eq(Message::getUserId, userId)
+                .eq(Message::getIsRead, 0));
+    }
+
+    @Transactional
+    public void markAllRead() {
+        Long userId = SecurityUtils.currentUserId();
+        Message update = new Message();
+        update.setIsRead(1);
+        messageMapper.update(update, new LambdaQueryWrapper<Message>()
+                .eq(Message::getUserId, userId)
+                .eq(Message::getIsRead, 0));
+    }
+
     @Transactional
     public Message markRead(Long messageId) {
         Long userId = SecurityUtils.currentUserId();
