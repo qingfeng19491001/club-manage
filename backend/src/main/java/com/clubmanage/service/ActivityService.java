@@ -53,7 +53,7 @@ public class ActivityService {
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireClubLeader(request.getClubId(), userId);
         if (TimeUtil.parse(request.getEndTime()).isBefore(TimeUtil.parse(request.getStartTime()))) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "缂佹挻娼弮鍫曟？娑撳秷鍏橀弮鈺€绨鈧慨瀣闂?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "结束时间不能早于开始时间");
         }
         Activity activity = new Activity();
         activity.setClubId(request.getClubId());
@@ -79,7 +79,7 @@ public class ActivityService {
     public Registration register(Long activityId) {
         Activity activity = getActivity(activityId);
         if (activity.getStatus() == null || activity.getStatus() != 1) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "濞茶濮╂稉宥呭讲閹躲儱鎮?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "活动不可报名");
         }
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireActiveMember(activity.getClubId(), userId);
@@ -96,7 +96,7 @@ public class ActivityService {
                 activityMapper.updateById(activity);
                 return existing;
             }
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "瀹稿弶濮ら崥宥堫嚉濞茶濮?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "已报名该活动");
         }
         int max = activity.getMaxParticipants() != null ? activity.getMaxParticipants() : 0;
         int count = activity.getRegisteredCount() != null ? activity.getRegisteredCount() : 0;
@@ -124,17 +124,17 @@ public class ActivityService {
                 .eq(Registration::getActivityId, activityId)
                 .eq(Registration::getUserId, userId));
         if (reg == null || reg.getStatus() == null) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "閺堫亝濮ら崥宥堫嚉濞茶濮?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "未报名该活动");
         }
         if (reg.getStatus() == 3) {
             throw new BusinessException(ErrorCode.ALREADY_CHECKED_IN);
         }
         if (reg.getStatus() != 1) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "閹躲儱鎮曞鎻掑絿濞?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "报名已取消");
         }
         String now = TimeUtil.now();
         if (TimeUtil.parse(now).isBefore(TimeUtil.parse(activity.getStartTime())) || TimeUtil.parse(now).isAfter(TimeUtil.parse(activity.getEndTime()))) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀ú璇插З缁涙儳鍩岄弮鍫曟？閼煎啫娲块崘?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "不在活动签到时间范围内");
         }
         if (activity.getLatitude() != null && activity.getLongitude() != null) {
             double dist = GeoUtils.distanceMeters(

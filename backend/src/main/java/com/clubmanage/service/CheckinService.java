@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clubmanage.common.BusinessException;
 import com.clubmanage.common.ErrorCode;
+import com.clubmanage.common.TimeUtil;
 import com.clubmanage.dto.checkin.CheckinAppealRequest;
 import com.clubmanage.dto.checkin.CheckinRecordRequest;
 import com.clubmanage.dto.checkin.CreateCheckinTaskRequest;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
-import com.clubmanage.common.TimeUtil;
 import java.util.Map;
 
 @Service
@@ -48,7 +48,7 @@ public class CheckinService {
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireClubLeader(request.getClubId(), userId);
         if (TimeUtil.parse(request.getEndTime()).isBefore(TimeUtil.parse(request.getStartTime()))) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "缂佹挻娼弮鍫曟？娑撳秷鍏橀弮鈺€绨鈧慨瀣闂?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "结束时间不能早于开始时间");
         }
         CheckinTask task = new CheckinTask();
         task.setClubId(request.getClubId());
@@ -84,7 +84,7 @@ public class CheckinService {
         }
         String now = TimeUtil.now();
         if (TimeUtil.parse(now).isBefore(TimeUtil.parse(task.getStartTime())) || TimeUtil.parse(now).isAfter(TimeUtil.parse(task.getEndTime()))) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀幍鎾冲幢閺冨爼妫块懠鍐ㄦ纯閸?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "不在签到时间范围内");
         }
         int radius = task.getRadiusMeters() != null ? task.getRadiusMeters() : defaultRadiusMeters;
         double dist = GeoUtils.distanceMeters(
@@ -122,7 +122,7 @@ public class CheckinService {
         clubMemberGuard.requireActiveMember(task.getClubId(), userId);
         String now = TimeUtil.now();
         if (TimeUtil.parse(now).isBefore(TimeUtil.parse(task.getStartTime())) || TimeUtil.parse(now).isAfter(TimeUtil.parse(task.getEndTime()))) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "娑撳秴婀幍鎾冲幢閺冨爼妫块懠鍐ㄦ纯閸?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "不在签到时间范围内");
         }
         CheckinRecord record = checkinRecordMapper.selectOne(new LambdaQueryWrapper<CheckinRecord>()
                 .eq(CheckinRecord::getTaskId, request.getTaskId())
@@ -162,7 +162,7 @@ public class CheckinService {
         } else if (clubId != null) {
             clubMemberGuard.requireClubLeader(clubId, userId);
         } else {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "鐠囬攱瀵氱€?clubId 閹?taskId");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "请指定 clubId 或 taskId");
         }
         LambdaQueryWrapper<CheckinRecord> q = new LambdaQueryWrapper<>();
         if (taskId != null) {

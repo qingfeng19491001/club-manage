@@ -37,7 +37,7 @@ public class FundService {
     @Transactional
     public Fund createFund(CreateFundRequest request) {
         if (request.getType() == null || (request.getType() != 1 && request.getType() != 2)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "缁忚垂绫诲瀷鏃犳晥");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "经费类型无效");
         }
         Long userId = SecurityUtils.currentUserId();
         clubMemberGuard.requireClubLeader(request.getClubId(), userId);
@@ -63,7 +63,7 @@ public class FundService {
         }
         clubMemberGuard.requireClubLeader(fund.getClubId(), SecurityUtils.currentUserId());
         if (fund.getStatus() == null || fund.getStatus() != 0) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "缁忚垂宸插鎵?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "经费已处理");
         }
         Long approverId = SecurityUtils.currentUserId();
         if (Boolean.TRUE.equals(request.getApproved())) {

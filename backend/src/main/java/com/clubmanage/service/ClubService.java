@@ -93,7 +93,7 @@ public class ClubService {
         clubMemberGuard.requireAdmin();
         Club club = getClub(clubId);
         if (club.getStatus() != 0) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "绀惧洟宸插鏍?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "社团已审核");
         }
         if (Boolean.TRUE.equals(request.getApproved())) {
             club.setStatus(1);
@@ -120,14 +120,14 @@ public class ClubService {
                 founder.setUpdatedAt(TimeUtil.now());
                 userMapper.updateById(founder);
             }
-            notifyUser(club.getFounderId(), "绀惧洟瀹℃牳閫氳繃", "鎮ㄧ殑绀惧洟銆? + club.getName() + "銆嶅凡閫氳繃瀹℃牳銆?, 1, clubId);
+            notifyUser(club.getFounderId(), "社团审核通过", "您的社团“" + club.getName() + "”已通过审核。", 1, clubId);
         } else {
             club.setStatus(2);
             club.setRejectReason(request.getRejectReason());
             club.setUpdatedAt(TimeUtil.now());
             clubMapper.updateById(club);
-            notifyUser(club.getFounderId(), "绀惧洟瀹℃牳鏈€氳繃", "鎮ㄧ殑绀惧洟銆? + club.getName() + "銆嶆湭閫氳繃瀹℃牳銆?
-                    + (request.getRejectReason() != null ? " 鍘熷洜锛? + request.getRejectReason() : ""), 1, clubId);
+            notifyUser(club.getFounderId(), "社团审核未通过", "您的社团“" + club.getName() + "”未通过审核。"
+                    + (request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : ""), 1, clubId);
         }
         return clubMapper.selectById(clubId);
     }
@@ -136,7 +136,7 @@ public class ClubService {
     public Member joinClub(Long clubId, JoinClubRequest request) {
         Club club = getClub(clubId);
         if (club.getStatus() != 1) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "绀惧洟鏈垚绔?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "社团未成立");
         }
         Long userId = SecurityUtils.currentUserId();
         Member existing = memberMapper.selectOne(new LambdaQueryWrapper<Member>()
@@ -147,7 +147,7 @@ public class ClubService {
                 throw new BusinessException(ErrorCode.ALREADY_JOINED_CLUB);
             }
             if (existing.getStatus() == 0) {
-                throw new BusinessException(ErrorCode.BAD_REQUEST, "鍏ョぞ鐢宠瀹℃牳涓?);
+                throw new BusinessException(ErrorCode.BAD_REQUEST, "入社申请审核中");
             }
             existing.setStatus(0);
             existing.setApplyReason(request.getApplyReason());
@@ -204,7 +204,7 @@ public class ClubService {
             throw new BusinessException(ErrorCode.NOT_FOUND);
         }
         if (member.getStatus() != 0) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "鐢宠宸插鐞?);
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "申请已处理");
         }
         Club club = getClub(clubId);
         if (Boolean.TRUE.equals(request.getApproved())) {
@@ -213,12 +213,12 @@ public class ClubService {
             member.setRejectReason(null);
             club.setMemberCount(club.getMemberCount() + 1);
             clubMapper.updateById(club);
-            notifyUser(member.getUserId(), "鍏ョぞ鐢宠閫氳繃", "鎮ㄥ凡鎴愬姛鍔犲叆绀惧洟銆? + club.getName() + "銆嶃€?, 1, clubId);
+            notifyUser(member.getUserId(), "入社申请通过", "您已成功加入社团“" + club.getName() + "”。", 1, clubId);
         } else {
             member.setStatus(2);
             member.setRejectReason(request.getRejectReason());
-            notifyUser(member.getUserId(), "鍏ョぞ鐢宠鏈€氳繃", "鎮ㄧ殑鍏ョぞ鐢宠鏈€氳繃銆?
-                    + (request.getRejectReason() != null ? " 鍘熷洜锛? + request.getRejectReason() : ""), 1, clubId);
+            notifyUser(member.getUserId(), "入社申请未通过", "您的入社申请未通过。"
+                    + (request.getRejectReason() != null ? " 原因：" + request.getRejectReason() : ""), 1, clubId);
         }
         member.setUpdatedAt(TimeUtil.now());
         memberMapper.updateById(member);

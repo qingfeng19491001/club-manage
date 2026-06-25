@@ -10,27 +10,27 @@ import java.math.BigDecimal;
 @Data
 public class CreateCheckinTaskRequest {
 
-    @NotNull(message = "缁€鎯ф礋ID娑撳秷鍏樻稉铏光敄")
+    @NotNull(message = "社团ID不能为空")
     private Long clubId;
 
-    @NotBlank(message = "娴犺濮熼弽鍥暯娑撳秷鍏樻稉铏光敄")
+    @NotBlank(message = "任务标题不能为空")
     @Size(max = 256)
     private String title;
 
     private String description;
     private String locationName;
 
-    @NotNull(message = "缁绢剙瀹虫稉宥堝厴娑撹櫣鈹?)
+    @NotNull(message = "纬度不能为空")
     private BigDecimal latitude;
 
-    @NotNull(message = "缂佸繐瀹虫稉宥堝厴娑撹櫣鈹?)
+    @NotNull(message = "经度不能为空")
     private BigDecimal longitude;
 
     private Integer radiusMeters;
 
-    @NotNull(message = "瀵偓婵妞傞梻缈犵瑝閼虫垝璐熺粚?)
+    @NotNull(message = "开始时间不能为空")
     private String startTime;
 
-    @NotNull(message = "缂佹挻娼弮鍫曟？娑撳秷鍏樻稉铏光敄")
+    @NotNull(message = "结束时间不能为空")
     private String endTime;
 }
